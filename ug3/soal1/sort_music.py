@@ -42,7 +42,7 @@ for song in result_views:
 
 print("\n=== SORT BY FAVOURITE GENRE ===")
 
-favourite_genre = "R&B"
+favourite_genre = "Pop"
 
 result_genre = sort_by_favourite_genre(songs, favourite_genre)
 
