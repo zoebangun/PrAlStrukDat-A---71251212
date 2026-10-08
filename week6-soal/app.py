@@ -5,7 +5,12 @@ from user import user_data_by_username
 st.set_page_config(page_title="DwTix - Login")
 
 # deklarasi sesi username, password, dan status login
-
+if "username" not in st.session_state:
+    st.session_state.username = None
+if "password" not in st.session_state:
+    st.session_state.password = None
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
 # kalau misal ada error itu gara gara versi streamlit minimal 1.52.0 ya
 # silahkan up pakai pip install --upgrade streamlit
@@ -19,9 +24,20 @@ user_by_name = user_data_by_username()
 st.write(user_by_name)
 # form -> username dan password (tipe password) 2 2 nya wajib pake required ya 
 # hint -> https://docs.streamlit.io/develop/api-reference/widgets/st.text_input
-
+username = st.text_input("username")
+password = st.text_input("password", type="password")
 # submit -> st.button(label="Login", type="primary")
 #  Kondisi -> jika role yang login peserta alihin nya ke event langsung dan ga boleh buka dashboard
 # Kalau salah st.error "Login gagal! Silahkan coba kembali"
+if st.button("login", type="primary"):
+    if username in user_by_name and user_by_name[username]["password"] == password:
+        st.session_state.logged_in = True
+        st.session_state.username = username
 
-
+        role = user_by_name[username]["role"]
+        if role == "Peserta":
+            st.switch_page("Pages/event.py")
+        elif role == "Admin":
+            st.switch_page("Pages/dashboard.py")
+        else:
+            st.error("Login gagal! Silahkan coba kembali")

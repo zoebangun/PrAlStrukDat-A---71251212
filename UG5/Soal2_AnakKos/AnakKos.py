@@ -7,15 +7,15 @@ st.title("Pengeluaran Anak Kos 71251212")
 
 # --- Input Uang Bulanan ---
 st.subheader("Uang Bulanan")
-uang_bulanan = st.number_input("Masukan Uang Bulanan:", value=None, placeholder="type a number")
+uang_bulanan = st.number_input("Masukan Uang Bulanan:", value=0, step=100000, placeholder="type a number")
 
 # --- Input Pengeluaran ---
 st.subheader("Pengeluaran Bulanan")
-makanan = st.number_input("Pengeluaran untuk makan:", value=None) # Ada 5
-kos = st.number_input("Uang sewa Kos:", value=None) # Kategori
-transportasi = st.number_input("Pengeluaran untuk Bensin:", value=None) # Pengeluaran
-internet = st.number_input("Pengeluaran untuk Internet:", value=None) # Ya kan
-hiburan = st.number_input("Pengeluaran untuk Hiburan:", value=None) # Paham lah ya
+makanan = st.number_input("Pengeluaran untuk makan:", value=0, step=10000) # Ada 5
+kos = st.number_input("Uang sewa Kos:", value=0, step=10000) # Kategori
+transportasi = st.number_input("Pengeluaran untuk Bensin:", value=0, step=10000) # Pengeluaran
+internet = st.number_input("Pengeluaran untuk Internet:", value=0, step=10000) # Ya kan
+hiburan = st.number_input("Pengeluaran untuk Hiburan:", value=0, step=10000) # Paham lah ya
 
 # --- Tombol Ngitung Pengeluaran ---
 if st. button("Hitung Pengeluaran"): # if jangan dihapus, cuman nambahin tombol disini :
@@ -95,7 +95,7 @@ if st. button("Hitung Pengeluaran"): # if jangan dihapus, cuman nambahin tombol 
         hiburan
     )   
     if makanan == nilai_terbesar:
-        pengeluaran_terbesar.append("makanan")
+        pengeluaran_terbesar.append("Makan")
     if kos == nilai_terbesar:
          pengeluaran_terbesar.append("Kos")
     if transportasi == nilai_terbesar:
@@ -111,4 +111,4 @@ if st. button("Hitung Pengeluaran"): # if jangan dihapus, cuman nambahin tombol 
 
     # --- Grafik Pengeluaran ---
     st.subheader("Grafik Pengeluaran")
-    st.bar_chart(df_pengeluaran) # Tampilin grafik pengeluaran di sini
+    st.bar_chart(df_pengeluaran.set_index("Kategori")["Pengeluaran"]) # Tampilin grafik pengeluaran di sini
