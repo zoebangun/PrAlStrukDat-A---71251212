@@ -6,8 +6,8 @@ if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.switch_page("app.py")
 
 username = st.session_state.username
-user = user_data_by_username()
-user_data = user[username]
+users = user_data_by_username()
+user = users[username]
 
 # hint untuk mematikan text input ada di -> https://docs.streamlit.io/develop/api-reference/widgets/st.text_input
 # BUAT 2 INPUT TEXT 1 Username 1 Password namun disable/matikan field Username dan yang password harus tipe password
@@ -29,11 +29,13 @@ with col1:
         
 with col2:
     if st.button("Ganti Data", type="secondary", width=400):
-        if password_lama != user["password"]:
+        if password_baru == password_lama:
             st.error("ga boleh sama wok")
+        elif password_lama != user["password"]:
+            st.error("password lama salah")
         else:
             user["password"] = password_baru
-            st.success("Berhasil")
+            st.success("Berhasil, silakan login ulang dengan password baru")    
 
     # Ini untuk ubah password st.button("Ganti Data", type="secondary", width=400)
     # Kondisi -> Password baru dan lama ga boleh sama 
