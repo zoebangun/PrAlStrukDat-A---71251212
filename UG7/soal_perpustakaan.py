@@ -19,17 +19,50 @@ def buat_katalog():
 # ===== Logika =====
 def pinjam_buku(katalog, pinjaman, nama, kode):
     # return pesan error (str) kalau gagal, atau None kalau berhasil
-    pass
+    if not nama or nama.strip() == "":
+        return "Nama Peminjam Wajib diisi!"
+
+    for p in pinjaman:
+        if p["nama"] == nama and p["kode"] == kode:
+            return "Buku ini sudah kamu pinjam!"
+
+    if katalog[kode]["stok"] <= 0:
+        return "stok buku habis!"
+
+    katalog[kode]["stok"] -= 1
+    pinjaman.append({"nama": nama, "kode": kode})
+    return None
 
 
 def kembalikan_buku(katalog, pinjaman, nama, kode):
     # return pesan error (str) kalau gagal, atau None kalau berhasil
-    pass
+    if not nama or nama.strip() == "":
+        return "Nama peminjam wajib diisi!"
+
+    target_index = -1
+    for i, p in enumerate(pinjaman):
+        if p["nama"] == nama and p["kode"] == kode:
+            target_index = i
+            break
+
+    if target_index == -1:
+        return "Data peminjaman tidak ditemukan!"
+
+    pinjaman.pop(target_index)
+    katalog[kode]["stok"] += 1
+    return None
 
 
 def rekap_per_peminjam(pinjaman):
     # return dictionary {nama: set kode buku yang sedang dipinjam}
-    pass
+    rekap = {}
+    for p in pinjaman:
+        nama = p["nama"]
+        kode = p["kode"]
+        if nama not in rekap:
+            rekap[nama] = set()
+        rekap[nama].add(kode)
+    return rekap
 
 
 # ===== Tampilan =====
@@ -37,14 +70,21 @@ def form_buku():
     # lengkapi kode def form_buku() untuk input nama dan kode
     # return (nama peminjam, kode buku, tombol Pinjam ditekan?, tombol Kembalikan ditekan?)
     # nama dibaca APA ADANYA (case-sensitive), hanya spasi di pinggir yang dibuang
+    opsi_buku = [
+        f"{kode} - {data['judul']}"
+        for kode, data in st.session_state.katalog.items()
+    ]
 
-    # nama = ? (TO DO)
-    # kode = ? (TO DO)
-    # kol1, kol2 = st.columns(2)
-    # pinjam = kol1.button("📖 Pinjam")
-    # kembali = kol2.button("↩️ Kembalikan")
-    # return nama, kode, pinjam, kembali
-    pass
+    nama = st.text_input("Nama peminjam").strip()
+    pilihan_buku = st.selectbox("Buku", opsi_buku)
+    kode = pilihan_buku.split(" - ")[0]
+
+    kol1, kol2 = st.columns(2)
+    pinjam = kol1.button("📖 Pinjam")
+    kembali = kol2.button("↩️ Kembalikan")
+    
+    return nama, kode, pinjam, kembali
+
 
 def tampilkan_katalog(katalog):
     st.table(pd.DataFrame.from_dict(katalog, orient="index"))
@@ -80,6 +120,21 @@ nama, kode, pinjam, kembali = form_buku()
 #    - kalau `pinjam`  -> panggil pinjam_buku(...)
 #    - kalau `kembali` -> panggil kembalikan_buku(...)
 #    keduanya: kalau ada pesan -> st.error(pesan), kalau tidak -> st.success("... berhasil ...")
+if pinjam:
+    pesan = pinjam_buku(katalog, pinjaman, nama, kode)
+    if pesan:
+        st.error(pesan)
+    else:
+        judul = katalog[kode]["judul"]
+        st.success(f"{nama} Berhasil meminjam {judul} ✅")
+
+elif kembali:
+    pesan = kembalikan_buku(katalog, pinjaman, nama, kode)
+    if pesan:
+        st.error(pesan)
+    else:
+        judul = katalog[kode]["judul"]
+        st.success(f"{nama} berhasil mengembalikan {judul} ✅")
 
 st.subheader("📦 Stok Buku")
 tampilkan_katalog(katalog)
