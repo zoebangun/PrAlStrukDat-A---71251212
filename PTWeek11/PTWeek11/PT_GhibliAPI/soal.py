@@ -23,7 +23,13 @@ def ambil_semua_film():
     # 2. Kirim request: response = requests.get(url)
     # 3. Jika response.status_code == 200, kembalikan response.json() (hasilnya list berisi dict film).
     # 4. Selain itu, kembalikan None.
-    pass
+    url = f"{BASE_URL}/films"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
 
 
 def ambil_detail_film(id_film):
@@ -37,8 +43,18 @@ def ambil_detail_film(id_film):
     #    Jadi jika key "status" ada di data ("status" in data), kembalikan None.
     #    Jika tidak ada, kembalikan data (dict film).
     # 4. Jika status_code bukan 200, kembalikan None.
-    pass
+    url = f"{BASE_URL}/films/{id_film}"
+    response = requests.get(url)
 
+    if response.status_code == 200:
+        data = response.json()
+
+        if "status" in data:
+            return None
+        else:
+            return data
+
+    return None
 
 # ---------- Bagian 2: Mengolah JSON menjadi dict ----------
 def ringkas_film(film):
@@ -48,14 +64,34 @@ def ringkas_film(film):
     # sutradara <- director, produser <- producer, tahun <- release_date, durasi <- running_time,
     # rt_score <- rt_score, poster <- image, banner <- movie_banner, sinopsis <- description.
     # tahun, durasi, dan rt_score dikirim API sebagai string: ubah ke int memakai ke_int().
-    pass
+    return {
+        "id": film["id"],
+        "judul": film["title"],
+        "judul_asli": film["original_title"],
+        "judul_romaji": film["original_title_romanised"],
+        "sutradara": film["director"],
+        "produser": film["producer"],
+        "tahun": ke_int(film["release_date"]),
+        "durasi": ke_int(film["running_time"]),
+        "rt_score": ke_int(film["rt_score"]),
+        "poster": film["image"],
+        "banner": film["movie_banner"],
+        "sinopsis": film["description"]
+    }
 
 
 def label_rating(rt_score):
     """>= 95 'Wajib Tonton', >= 85 'Sangat Bagus', >= 70 'Bagus', selain itu 'Biasa Saja'."""
     # TODO 4: Kembalikan label sesuai rt_score (int) memakai if / elif / else:
     # >= 95 'Wajib Tonton', >= 85 'Sangat Bagus', >= 70 'Bagus', selain itu 'Biasa Saja'.
-    pass
+    if rt_score >= 95:
+        return "Wajib Tonton"
+    elif rt_score >= 85:
+        return "Sangat Bagus"
+    elif rt_score >= 70:
+        return "Bagus"
+    else:
+        return "Biasa Saja"
 
 
 # ---------- Bagian 3: Rekomendasi ----------
@@ -68,7 +104,14 @@ def filter_film(daftar, sutradara, rt_min, tahun_min, tahun_max):
     #   - film["rt_score"] >= rt_min
     #   - tahun_min <= film["tahun"] <= tahun_max
     # Kembalikan hasil.
-    pass
+    hasil = []
+
+    for  film in daftar:
+        if ((sutradara == "Semua" or film["sutradara"] == sutradara)
+            and film["rt_score"] >= rt_min
+            and tahun_min <= film["tahun"] <= tahun_max):
+            hasil.append(film)
+    return hasil
 
 
 def rekomendasi_acak(kandidat, id_sebelumnya):
@@ -80,7 +123,19 @@ def rekomendasi_acak(kandidat, id_sebelumnya):
     #    (supaya rekomendasi tidak sama dengan sebelumnya).
     # 3. Jika pilihan kosong (kandidat cuma berisi film sebelumnya), isi pilihan = kandidat.
     # 4. Kembalikan random.choice(pilihan). random.choice(list) mengambil 1 elemen acak dari list.
-    pass
+    if  len(kandidat) == 0:
+        return None
+
+    pilihan = []
+
+    for film in kandidat:
+        if film["id"] != id_sebelumnya:
+            pilihan.append(film)
+
+    if len(pilihan) == 0:
+        pilihan = kandidat
+
+    return random.choice(pilihan)
 
 
 # ---------- Tampilan Streamlit (tidak perlu diubah) ----------
